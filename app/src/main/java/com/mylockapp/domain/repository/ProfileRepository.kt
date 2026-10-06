@@ -1,0 +1,13 @@
+package com.mylockapp.domain.repository
+
+import com.mylockapp.domain.model.FaceSignature
+
+interface ProfileRepository {
+    fun hasPin(): Boolean
+    fun savePin(pin: String)
+    fun verifyPin(pin: String): Boolean
+    fun saveFace(signature: FaceSignature)
+    fun loadFace(): FaceSignature?
+    fun lockedPackages(): Set<String>
+    fun setLockedPackages(packages: Set<String>)
+}
