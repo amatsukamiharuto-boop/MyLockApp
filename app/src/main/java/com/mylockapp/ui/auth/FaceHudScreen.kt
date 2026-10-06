@@ -93,7 +93,7 @@ private fun ColumnScope.FaceScanner(onVerified: (FaceSignature) -> Unit) {
         }
         providerFuture.addListener({
             val provider = providerFuture.get()
-            val preview = Preview.Builder().build().also { it.surfaceProvider = previewView.surfaceProvider }
+            val preview = Preview.Builder().build().also { it.setSurfaceProvider(previewView.surfaceProvider) }
             val analysis = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build().also { it.setAnalyzer(executor, analyzer) }
