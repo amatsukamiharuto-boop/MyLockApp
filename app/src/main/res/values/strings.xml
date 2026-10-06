@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyLockApp</string>
+    <string name="a11y_description">Detects when a protected app opens so MyLockApp can require authentication. No screen content is read or stored.</string>
+</resources>
