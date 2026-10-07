@@ -2,7 +2,7 @@ package com.mylockapp.domain.model
 
 import kotlin.math.sqrt
 
-enum class AuthStep { BIOMETRIC, PIN, FACE, MATCHING, GRANTED, DENIED }
+enum class AuthStep { BIOMETRIC, PIN, REGISTER, FACE, MATCHING, GRANTED, DENIED }
 
 /**
  * Geometric face signature built from ML Kit landmarks (ratios normalised by eye distance).
