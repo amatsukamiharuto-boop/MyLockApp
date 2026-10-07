@@ -1,6 +1,7 @@
 package com.mylockapp.data
 
 import com.mylockapp.domain.model.FaceSignature
+import com.mylockapp.domain.model.UserProfile
 import com.mylockapp.domain.repository.ProfileRepository
 
 class ProfileRepositoryImpl(private val store: SecureStore) : ProfileRepository {
@@ -9,6 +10,8 @@ class ProfileRepositoryImpl(private val store: SecureStore) : ProfileRepository 
         const val PIN_SALT = "pin_salt"
         const val FACE = "face_signature"
         const val LOCKED = "locked_packages"
+        const val PROFILE = "user_profile"
+        const val PHOTO = "face_photo"
     }
 
     @Volatile private var lockedCache: Set<String>? = null
@@ -37,4 +40,10 @@ class ProfileRepositoryImpl(private val store: SecureStore) : ProfileRepository 
         lockedCache = packages
         store.putStringSet(LOCKED, packages)
     }
+
+    override fun saveUserProfile(profile: UserProfile) = store.putString(PROFILE, profile.toJson())
+    override fun loadUserProfile(): UserProfile? = store.getString(PROFILE)?.let(UserProfile::fromJson)
+
+    override fun saveFacePhoto(jpeg: ByteArray) = store.putString(PHOTO, PinHasher.encode(jpeg))
+    override fun loadFacePhoto(): ByteArray? = store.getString(PHOTO)?.let(PinHasher::decode)
 }
