@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -34,6 +33,8 @@ class AuthActivity : FragmentActivity() {
     companion object {
         private const val EXTRA_TARGET = "target"
         private const val EXTRA_ENROLL = "enroll"
+        private const val REVEAL_MILLIS = 5000L
+
         fun intent(ctx: Context, target: String?) =
             Intent(ctx, AuthActivity::class.java).putExtra(EXTRA_TARGET, target)
         fun enrollIntent(ctx: Context) =
@@ -60,10 +61,12 @@ class AuthActivity : FragmentActivity() {
                     factory = viewModelFactory { initializer { AuthViewModel(container, enroll) } }
                 )
                 val step by vm.step.collectAsState()
+                val profile by vm.profile.collectAsState()
+                val photo by vm.photo.collectAsState()
 
                 LaunchedEffect(step) {
                     if (step == AuthStep.GRANTED) {
-                        delay(1200)
+                        delay(REVEAL_MILLIS) // let the voice + profile reveal play out
                         onGranted(target, container.sessions::grant)
                     }
                 }
@@ -79,9 +82,10 @@ class AuthActivity : FragmentActivity() {
                         title = "LAYER 02 // ACCESS CODE",
                         onSubmit = vm::submitPin
                     )
+                    AuthStep.REGISTER -> ProfileFormScreen(onSubmit = vm::onRegisterSubmit)
                     AuthStep.FACE -> FaceHudScreen(onVerified = vm::onFaceVerified)
-                    AuthStep.MATCHING -> MatchingScreen(onDone = vm::onMatchingDone)
-                    AuthStep.GRANTED -> StatusScreen("ACCESS GRANTED", Hud.Green)
+                    AuthStep.MATCHING -> Unit // no longer used
+                    AuthStep.GRANTED -> ProfileRevealScreen(profile, photo)
                     AuthStep.DENIED -> StatusScreen("ACCESS DENIED", Hud.Magenta, onRetry = vm::retry)
                 }
             }
