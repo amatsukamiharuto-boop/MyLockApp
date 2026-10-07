@@ -2,6 +2,7 @@ package com.mylockapp.ui.auth
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -37,7 +38,7 @@ import java.util.concurrent.Executors
 private const val REQUIRED_GOOD_FRAMES = 10
 
 @Composable
-fun FaceHudScreen(onVerified: (FaceSignature) -> Unit) {
+fun FaceHudScreen(onVerified: (FaceSignature, Bitmap?) -> Unit) {
     val ctx = LocalContext.current
     var hasCamera by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
@@ -57,7 +58,7 @@ fun FaceHudScreen(onVerified: (FaceSignature) -> Unit) {
 }
 
 @Composable
-private fun ColumnScope.FaceScanner(onVerified: (FaceSignature) -> Unit) {
+private fun ColumnScope.FaceScanner(onVerified: (FaceSignature, Bitmap?) -> Unit) {
     val ctx = LocalContext.current
     val owner = LocalLifecycleOwner.current
     var hint by remember { mutableStateOf("ALIGN FACE WITHIN RETICLE") }
@@ -86,7 +87,9 @@ private fun ColumnScope.FaceScanner(onVerified: (FaceSignature) -> Unit) {
                         done = true
                         val n = samples.first().values.size
                         val avg = FloatArray(n) { i -> samples.map { it.values[i] }.average().toFloat() }
-                        onVerified(FaceSignature(avg))
+                        val signature = FaceSignature(avg)
+                        // PreviewView.bitmap must be read on the main thread.
+                        previewView.post { onVerified(signature, previewView.bitmap) }
                     }
                 }
             }
